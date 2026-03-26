@@ -165,7 +165,7 @@
     <script>
         const defaultData = [
 
-  // --- LOẠI TÀI KHOẢN TÀI SẢN ---
+  // --- LOẠI TÀI KHOẢN TÀI SẢN (Bắt đầu bằng 1, 2 -> inc_dr) ---
   { id: "111", name: "Tiền mặt", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "112", name: "Tiền gửi không kỳ hạn", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "113", name: "Tiền đang chuyển", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
@@ -201,11 +201,11 @@
   { id: "211", name: "Tài sản cố định hữu hình", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "212", name: "Tài sản cố định thuê tài chính", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
   { id: "213", name: "Tài sản cố định vô hình", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
-  { id: "214", name: "Hao mòn tài sản cố định", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
-  { id: "2141", name: "Hao mòn TSCĐ hữu hình", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2142", name: "Hao mòn TSCĐ thuê tài chính", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2143", name: "Hao mòn TSCĐ vô hình", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2147", name: "Hao mòn BĐSĐT", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
+  { id: "214", name: "Hao mòn tài sản cố định", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
+  { id: "2141", name: "Hao mòn TSCĐ hữu hình", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2142", name: "Hao mòn TSCĐ thuê tài chính", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2143", name: "Hao mòn TSCĐ vô hình", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2147", name: "Hao mòn BĐSĐT", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "215", name: "Tài sản sinh học", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
   { id: "2151", name: "Súc vật nuôi cho sản phẩm định kỳ", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "2152", name: "Súc vật nuôi lấy sản phẩm một lần", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
@@ -216,12 +216,12 @@
   { id: "228", name: "Đầu tư khác", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
   { id: "2281", name: "Đầu tư góp vốn vào đơn vị khác", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "2288", name: "Đầu tư khác", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
-  { id: "229", name: "Dự phòng tổn thất tài sản", rule: "inc_cr", level: 1, isFavorite: false, examples: [] },
-  { id: "2291", name: "Dự phòng giảm giá chứng khoán kinh doanh", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2292", name: "Dự phòng tổn thất đầu tư vào đơn vị khác", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2293", name: "Dự phòng phải thu khó đòi", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2294", name: "Dự phòng giảm giá hàng tồn kho", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
-  { id: "2295", name: "Dự phòng tổn thất tài sản sinh học", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
+  { id: "229", name: "Dự phòng tổn thất tài sản", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
+  { id: "2291", name: "Dự phòng giảm giá chứng khoán kinh doanh", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2292", name: "Dự phòng tổn thất đầu tư vào đơn vị khác", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2293", name: "Dự phòng phải thu khó đòi", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2294", name: "Dự phòng giảm giá hàng tồn kho", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
+  { id: "2295", name: "Dự phòng tổn thất tài sản sinh học", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "241", name: "Xây dựng cơ bản dở dang", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "2411", name: "Mua sắm TSCĐ", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "2412", name: "Xây dựng cơ bản", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
@@ -231,7 +231,7 @@
   { id: "243", name: "Tài sản thuế thu nhập hoãn lại", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
   { id: "244", name: "Ký quỹ, ký cược", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
 
-  // --- LOẠI TÀI KHOẢN NỢ PHẢI TRẢ ---
+  // --- LOẠI TÀI KHOẢN NỢ PHẢI TRẢ (Bắt đầu bằng 3 -> inc_cr) ---
   { id: "331", name: "Phải trả cho người bán", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
   { id: "332", name: "Phải trả cổ tức, lợi nhuận", rule: "inc_cr", level: 1, isFavorite: false, examples: [] },
   { id: "333", name: "Thuế và các khoản phải nộp Nhà nước", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
@@ -283,7 +283,7 @@
   { id: "3562", name: "Quỹ phát triển khoa học và công nghệ đã hình thành tài sản", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
   { id: "357", name: "Quỹ bình ổn giá", rule: "inc_cr", level: 1, isFavorite: false, examples: [] },
 
-  // --- LOẠI TÀI KHOẢN VỐN CHỦ SỞ HỮU ---
+  // --- LOẠI TÀI KHOẢN VỐN CHỦ SỞ HỮU (Bắt đầu bằng 4 -> inc_cr) ---
   { id: "411", name: "Vốn đầu tư của chủ sở hữu", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
   { id: "4111", name: "Vốn góp của chủ sở hữu", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
   { id: "4112", name: "Thặng dư vốn", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
@@ -293,15 +293,15 @@
   { id: "413", name: "Chênh lệch tỷ giá hối đoái", rule: "inc_cr", level: 1, isFavorite: false, examples: [] },
   { id: "414", name: "Quỹ đầu tư phát triển", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
   { id: "418", name: "Các quỹ khác thuộc vốn chủ sở hữu", rule: "inc_cr", level: 1, isFavorite: false, examples: [] },
-  { id: "419", name: "Cổ phiếu mua lại của chính mình", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
+  { id: "419", name: "Cổ phiếu mua lại của chính mình", rule: "inc_cr", level: 1, isFavorite: false, examples: [] },
   { id: "421", name: "Lợi nhuận sau thuế chưa phân phối", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
   { id: "4211", name: "Lợi nhuận sau thuế chưa phân phối lũy kế đến cuối năm trước", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
   { id: "4212", name: "Lợi nhuận sau thuế chưa phân phối năm nay", rule: "inc_cr", level: 2, isFavorite: false, examples: [] },
 
-  // --- LOẠI TÀI KHOẢN DOANH THU & CHI PHÍ ---
+  // --- LOẠI TÀI KHOẢN DOANH THU & CHI PHÍ (5, 7 -> inc_cr | 6, 8 -> inc_dr) ---
   { id: "511", name: "Doanh thu bán hàng và cung cấp dịch vụ", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
   { id: "515", name: "Doanh thu hoạt động tài chính", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
-  { id: "521", name: "Các khoản giảm trừ doanh thu", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
+  { id: "521", name: "Các khoản giảm trừ doanh thu", rule: "inc_cr", level: 1, isFavorite: true, examples: [] },
   { id: "621", name: "Chi phí nguyên liệu, vật liệu trực tiếp", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "622", name: "Chi phí nhân công trực tiếp", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "623", name: "Chi phí sử dụng máy thi công", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
@@ -343,7 +343,8 @@
   { id: "821", name: "Chi phí thuế thu nhập doanh nghiệp", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "8211", name: "Chi phí thuế TNDN hiện hành", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "8212", name: "Chi phí thuế TNDN hoãn lại", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
-  { id: "911", name: "Xác định kết quả kinh doanh", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },     ];
+  { id: "911", name: "Xác định kết quả kinh doanh", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
+     ];
 
         let rawData = [];
         let activeModalAccId = null;
