@@ -39,13 +39,13 @@
 
         .highlight { background-color: #fef08a; font-weight: 700; color: #b45309; padding: 0 1px; border-radius: 2px; }
         
-        /* Mobile optimization: No horizontal scroll */
+        /* Layout optimization */
         table { table-layout: fixed; width: 100%; border-spacing: 0; }
-        .col-id { width: 60px; }
+        .col-id { width: 65px; }
         .col-rule { width: 85px; }
         
         @media (max-width: 640px) {
-            .col-id { width: 55px; }
+            .col-id { width: 60px; }
             .col-rule { width: 80px; }
             .text-acc-name { font-size: 0.85rem; line-height: 1.25; }
             .text-acc-id { font-size: 0.9rem; }
@@ -65,7 +65,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Floating Search Header logic */
         #mainHeader { transition: transform 0.3s ease, opacity 0.3s ease; }
         .header-hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
         
@@ -83,7 +82,6 @@
 
         .modal-open { overflow: hidden; }
 
-        /* Filter Chips */
         .filter-chip {
             white-space: nowrap;
             padding: 0.4rem 0.85rem;
@@ -103,14 +101,13 @@
             box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
         }
 
-        /* Rule Arrow Styling */
         .arrow-up { font-size: 1.1rem; vertical-align: middle; line-height: 1; }
         .arrow-down { font-size: 1.1rem; vertical-align: middle; line-height: 1; }
     </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen flex flex-col" onload="initApp()">
 
-    <!-- Main Header -->
+    <!-- Header -->
     <header id="mainHeader" class="bg-white border-b border-slate-200 sticky top-0 z-[110] shadow-sm shrink-0">
         <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -139,7 +136,7 @@
         </div>
     </header>
 
-    <!-- Floating Search & Filter Bar -->
+    <!-- Search & Filters -->
     <div id="stickySearchWrapper" class="z-[100]">
         <div id="searchContainer" class="max-w-6xl mx-auto px-4 py-4">
             <div class="relative max-w-2xl mx-auto">
@@ -155,7 +152,6 @@
                 </div>
             </div>
 
-            <!-- Quick Filter Menu -->
             <div id="filterMenu" class="mt-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
                 <button onclick="setFilter('all')" class="filter-chip active" id="filter-all">Tất cả</button>
                 <button onclick="setFilter('fav')" class="filter-chip flex items-center gap-1" id="filter-fav">
@@ -167,16 +163,19 @@
         </div>
     </div>
 
+    <!-- Table -->
     <main class="flex-1 max-w-6xl mx-auto w-full px-2 pb-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <table class="border-collapse">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200">
                         <th class="col-id px-2 py-3 text-[10px] font-bold text-slate-500 uppercase text-center">Mã</th>
-                        <th class="px-2 py-3 text-[10px] font-bold text-slate-500 uppercase text-left">
-                            Tên tài khoản
-                            <div id="accountCounter" class="text-[9px] font-normal text-slate-400 normal-case mt-0.5 tracking-tight italic">
-                                Đang tải...
+                        <th class="px-3 py-3 text-[10px] font-bold text-slate-500 uppercase text-left">
+                            <div class="flex items-center justify-between gap-2">
+                                <span>Tên tài khoản</span>
+                                <span id="accountCounter" class="text-[9px] font-semibold text-blue-500 normal-case bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 whitespace-nowrap">
+                                    0 cấp 1, 0 cấp 2
+                                </span>
                             </div>
                         </th>
                         <th class="col-rule px-2 py-3 text-[10px] font-bold text-slate-500 uppercase text-center">Quy tắc</th>
@@ -188,7 +187,7 @@
         </div>
     </main>
 
-    <!-- Modal Chi tiết/Ví dụ -->
+    <!-- Modal Chi tiết -->
     <div id="exampleModal" class="fixed inset-0 z-[120] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-xl p-5 shadow-2xl scale-in flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-start mb-4">
@@ -211,7 +210,7 @@
         </div>
     </div>
 
-    <!-- Modal Thêm TK -->
+    <!-- Modal Thêm -->
     <div id="addModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white rounded-xl w-full max-w-xs p-5 shadow-2xl scale-in">
             <h3 class="text-sm font-bold text-slate-900 mb-4 uppercase">Thêm tài khoản mới</h3>
@@ -237,7 +236,7 @@
 
     <script>
         const defaultData = [
-            
+                       
   // --- LOẠI TÀI KHOẢN TÀI SẢN (Bắt đầu bằng 1, 2 -> inc_dr) ---
   { id: "111", name: "Tiền mặt", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "112", name: "Tiền gửi không kỳ hạn", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
@@ -417,7 +416,8 @@
   { id: "8211", name: "Chi phí thuế TNDN hiện hành", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "8212", name: "Chi phí thuế TNDN hoãn lại", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
  { id: "911", name: "Xác định kết quả kinh doanh", rule: "other", level: 1, isFavorite: true, examples: [{question: "Kết chuyển giá vốn hàng bán cuối kỳ", answer: "Nợ 911 / Có 632"}] },
-     ];
+ 
+        ];
 
         let rawData = [];
         let currentFilter = 'all'; 
@@ -439,7 +439,6 @@
         function setupScrollListener() {
             const header = document.getElementById('mainHeader');
             const searchCont = document.getElementById('searchContainer');
-            
             window.addEventListener('scroll', () => {
                 let st = window.pageYOffset || document.documentElement.scrollTop;
                 if (st > 40) {
@@ -449,7 +448,7 @@
                     header.classList.remove('header-hidden');
                     searchCont.classList.remove('search-sticky');
                 }
-            }, false);
+            });
         }
 
         function setFilter(type) {
@@ -482,7 +481,7 @@
             const l1 = list.filter(a => a.id.length <= 3).length;
             const l2 = list.filter(a => a.id.length > 3).length;
             const counterEl = document.getElementById('accountCounter');
-            counterEl.innerHTML = `(${l1} cấp 1, ${l2} cấp 2)`;
+            counterEl.innerHTML = `${l1} cấp 1, ${l2} cấp 2`;
         }
 
         function renderList(list, query = "") {
@@ -503,8 +502,8 @@
                 html += `
                     <tr class="acc-row transition-all-200 cursor-pointer ${isL2 ? 'bg-slate-50/50' : ''}" onclick="openExampleModal('${acc.id}', event)">
                         <td class="px-1 py-3 font-mono font-bold text-blue-600 text-center text-acc-id truncate">${highlightText(acc.id, query)}</td>
-                        <td class="px-2 py-3">
-                            <div class="flex items-center gap-1 ${isL2 ? 'level-2' : ''} text-acc-name text-slate-800 font-medium">
+                        <td class="px-3 py-3">
+                            <div class="flex items-center gap-1.5 ${isL2 ? 'level-2' : ''} text-acc-name text-slate-800 font-medium">
                                 <span class="break-words">${highlightText(acc.name, query)}</span>
                                 ${acc.isFavorite ? '<span class="favorite-star text-[9px]">★</span>' : ''}
                             </div>
@@ -573,7 +572,6 @@
             renderModalExamples(rawData[idx]);
             document.getElementById('exQuestion').value = "";
             document.getElementById('exAnswer').value = "";
-            renderList(rawData);
         }
 
         function deleteExample(i) {
@@ -581,11 +579,10 @@
             rawData[idx].examples.splice(i, 1);
             saveData();
             renderModalExamples(rawData[idx]);
-            renderList(rawData);
         }
 
         function deleteAccount() {
-            if(confirm("Xác nhận xóa tài khoản này khỏi danh sách?")) {
+            if(confirm("Xóa tài khoản này?")) {
                 rawData = rawData.filter(a => a.id !== activeModalAccId);
                 saveData();
                 handleSearch();
@@ -634,7 +631,7 @@
             const blob = new Blob([JSON.stringify(rawData, null, 2)], { type: "application/json" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `ketoan_tt99_${new Date().getTime()}.json`;
+            link.download = `ketoan_tt99.json`;
             link.click();
             toggleSettingsMenu();
         }
@@ -650,7 +647,7 @@
                     rawData = JSON.parse(e.target.result);
                     saveData();
                     handleSearch();
-                } catch(e) { alert("File không hợp lệ!"); }
+                } catch(e) { alert("Lỗi đọc file!"); }
             };
             reader.readAsText(file);
         }
