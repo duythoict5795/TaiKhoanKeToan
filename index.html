@@ -2,169 +2,242 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tra cứu Tài khoản Kế toán TT 99/2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --bg-body: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body);
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
         .font-mono { font-family: 'JetBrains+Mono', monospace; }
-        .acc-row:hover { background-color: #f8fafc; }
+        
+        .transition-all-200 { transition: all 0.2s ease-in-out; }
+
+        .acc-row:active { background-color: #f1f5f9; }
+        @media (min-width: 768px) {
+            .acc-row:hover { background-color: #f1f5f9; }
+        }
+
         .favorite-star { color: #f59e0b; }
+
         @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.95); }
+            from { opacity: 0; transform: scale(0.98); }
             to { opacity: 1; transform: scale(1); }
         }
         .scale-in { animation: scaleIn 0.2s ease-out forwards; }
-        .highlight { background-color: #fef08a; font-weight: 700; color: #b45309; padding: 0 2px; border-radius: 2px; }
-        .level-2 { padding-left: 2rem; position: relative; }
-        .level-2::before { content: ""; position: absolute; left: 0.75rem; top: 0; bottom: 0; width: 2px; background-color: #e2e8f0; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .highlight { background-color: #fef08a; font-weight: 700; color: #b45309; padding: 0 1px; border-radius: 2px; }
+        
+        /* Mobile optimization: No horizontal scroll */
+        table { table-layout: fixed; width: 100%; border-spacing: 0; }
+        .col-id { width: 60px; }
+        .col-rule { width: 85px; }
+        
+        @media (max-width: 640px) {
+            .col-id { width: 55px; }
+            .col-rule { width: 80px; }
+            .text-acc-name { font-size: 0.85rem; line-height: 1.25; }
+            .text-acc-id { font-size: 0.9rem; }
+        }
+
+        .level-2 { padding-left: 0.75rem; position: relative; }
+        .level-2::before { 
+            content: ""; 
+            position: absolute; 
+            left: 0.25rem; 
+            top: 0; 
+            bottom: 0; 
+            width: 2px; 
+            background-color: #e2e8f0; 
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Floating Search Header logic */
+        #mainHeader { transition: transform 0.3s ease, opacity 0.3s ease; }
+        .header-hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        
+        #searchContainer { transition: all 0.3s ease; }
+        .search-sticky { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            background: white; 
+            z-index: 100; 
+            padding: 0.5rem 1rem; 
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .modal-open { overflow: hidden; }
+
+        /* Filter Chips */
+        .filter-chip {
+            white-space: nowrap;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            flex-shrink: 0;
+        }
+        .filter-chip.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Rule Arrow Styling */
+        .arrow-up { font-size: 1.1rem; vertical-align: middle; line-height: 1; }
+        .arrow-down { font-size: 1.1rem; vertical-align: middle; line-height: 1; }
     </style>
 </head>
-<body class="antialiased text-slate-800 bg-slate-50 min-h-screen" onload="initApp()">
+<body class="antialiased text-slate-800 min-h-screen flex flex-col" onload="initApp()">
 
-    <!-- Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-[100] shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Main Header -->
+    <header id="mainHeader" class="bg-white border-b border-slate-200 sticky top-0 z-[110] shadow-sm shrink-0">
+        <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Thông tư 99/2025/TT-BTC</h1>
-                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Hệ thống tài khoản doanh nghiệp <span id="totalStats" class="text-blue-600"></span></p>
-                </div>
+                <h1 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Thông tư 99/2025</h1>
             </div>
             
             <div class="relative">
-                <button onclick="toggleSettingsMenu()" class="p-3 bg-white border border-slate-200 text-slate-600 rounded-2xl hover:bg-slate-50 transition-all shadow-sm hover:shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <button onclick="toggleSettingsMenu()" class="p-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     </svg>
                 </button>
-                
-                <!-- Settings Dropdown -->
-                <div id="settingsMenu" class="hidden absolute right-0 mt-3 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-[110] scale-in">
-                    <button onclick="exportData()" class="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3">
-                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Xuất dữ liệu (JSON)
-                    </button>
-                    <button onclick="triggerImport()" class="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3">
-                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        Nhập dữ liệu mới
-                    </button>
+                <div id="settingsMenu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-[110] scale-in origin-top-right">
+                    <button onclick="exportData()" class="w-full text-left px-4 py-2.5 text-xs font-medium hover:bg-slate-50">Xuất Dữ liệu (JSON)</button>
+                    <button onclick="triggerImport()" class="w-full text-left px-4 py-2.5 text-xs font-medium hover:bg-slate-50">Nhập Dữ liệu (JSON)</button>
                     <hr class="my-1 border-slate-100">
-                    <button onclick="openAddModal()" class="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3">
-                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                        Thêm tài khoản thủ công
-                    </button>
+                    <button onclick="openAddModal()" class="w-full text-left px-4 py-2.5 text-xs font-bold text-blue-600 hover:bg-blue-50">+ Thêm Tài khoản</button>
                 </div>
                 <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
-        <!-- Search area -->
-        <div class="mb-10 text-center">
-            <div class="relative max-w-2xl mx-auto group">
+    <!-- Floating Search & Filter Bar -->
+    <div id="stickySearchWrapper" class="z-[100]">
+        <div id="searchContainer" class="max-w-6xl mx-auto px-4 py-4">
+            <div class="relative max-w-2xl mx-auto">
                 <input type="text" id="searchInput" 
-                    class="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all text-lg"
-                    placeholder="Tìm theo số hiệu, tên hoặc ĐỀ BÀI nghiệp vụ..."
-                    onkeyup="handleSearch()">
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all text-sm"
+                    placeholder="Tìm mã hoặc tên tài khoản..."
+                    onkeyup="handleSearch()"
+                    enterkeyhint="search">
+                <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
             </div>
-            <p id="searchHint" class="mt-3 text-sm text-slate-500 italic">Ví dụ định khoản chỉ hiện ra khi tìm kiếm từ khóa khớp với Đề bài.</p>
-        </div>
 
-        <!-- Table -->
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/80 border-b border-slate-200">
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-center w-24">Số hiệu</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Tên Tài Khoản</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest w-40">Quy tắc</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right w-20"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="accountBody" class="divide-y divide-slate-100">
-                        <!-- Content via JS -->
-                    </tbody>
-                </table>
-            </div>
-            <div id="emptyState" class="hidden py-20 text-center">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-slate-100 rounded-full mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <p class="text-slate-500 font-medium">Không tìm thấy tài khoản nào phù hợp.</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal Quản Lý Ví Dụ -->
-    <div id="exampleModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-2xl p-8 shadow-2xl scale-in flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-start mb-4 shrink-0">
-                <div>
-                    <h3 class="text-2xl font-bold text-slate-900" id="exampleModalTitle">Quản lý nghiệp vụ</h3>
-                    <p class="text-sm text-slate-500 mt-1">Cặp Đề bài - Đáp án tra cứu nhanh.</p>
-                </div>
-                <button onclick="closeExampleModal()" class="p-2 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <!-- Quick Filter Menu -->
+            <div id="filterMenu" class="mt-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                <button onclick="setFilter('all')" class="filter-chip active" id="filter-all">Tất cả</button>
+                <button onclick="setFilter('fav')" class="filter-chip flex items-center gap-1" id="filter-fav">
+                    <span class="favorite-star text-[10px]">★</span> Hay dùng
                 </button>
-            </div>
-            <div id="existingExamplesList" class="flex-1 overflow-y-auto custom-scrollbar pr-2 mb-6 space-y-3"></div>
-            <div class="bg-blue-50 border border-blue-100 p-5 rounded-2xl shrink-0">
-                <div class="space-y-3">
-                    <textarea id="exQuestion" rows="2" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl outline-none transition-all resize-none text-sm" placeholder="Nhập Đề bài ví dụ..."></textarea>
-                    <input type="text" id="exAnswer" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl outline-none text-sm font-mono text-blue-700" placeholder="Nhập cách định khoản (Đáp án)...">
-                    <button onclick="addNewExample()" class="w-full py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md text-sm"> + Lưu Ví Dụ </button>
-                </div>
+                <div class="h-3 w-px bg-slate-200 mx-1 shrink-0"></div>
+                <div id="groupButtons" class="flex gap-1.5"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Thêm Tài Khoản -->
+    <main class="flex-1 max-w-6xl mx-auto w-full px-2 pb-8">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="col-id px-2 py-3 text-[10px] font-bold text-slate-500 uppercase text-center">Mã</th>
+                        <th class="px-2 py-3 text-[10px] font-bold text-slate-500 uppercase text-left">
+                            Tên tài khoản
+                            <div id="accountCounter" class="text-[9px] font-normal text-slate-400 normal-case mt-0.5 tracking-tight italic">
+                                Đang tải...
+                            </div>
+                        </th>
+                        <th class="col-rule px-2 py-3 text-[10px] font-bold text-slate-500 uppercase text-center">Quy tắc</th>
+                    </tr>
+                </thead>
+                <tbody id="accountBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+            <div id="emptyState" class="hidden py-12 text-center text-slate-400 text-sm">Không tìm thấy tài khoản.</div>
+        </div>
+    </main>
+
+    <!-- Modal Chi tiết/Ví dụ -->
+    <div id="exampleModal" class="fixed inset-0 z-[120] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-xl p-5 shadow-2xl scale-in flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-base font-bold text-slate-900 pr-4" id="exampleModalTitle">Tài khoản</h3>
+                <div class="flex gap-2">
+                    <button onclick="deleteAccount()" class="p-1.5 text-red-400 hover:bg-red-50 rounded-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                    <button onclick="closeExampleModal()" class="p-1.5 text-slate-400 hover:bg-slate-100 rounded-full">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="existingExamplesList" class="flex-1 overflow-y-auto no-scrollbar mb-4 space-y-2"></div>
+            <div class="bg-blue-50 p-3 rounded-xl space-y-2">
+                <textarea id="exQuestion" rows="2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none" placeholder="Nhập nghiệp vụ ví dụ..."></textarea>
+                <input type="text" id="exAnswer" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono" placeholder="Định khoản (VD: N111/C112)">
+                <button onclick="addNewExample()" class="w-full py-2 bg-blue-600 text-white rounded-lg font-bold text-xs shadow-sm">Lưu ví dụ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm TK -->
     <div id="addModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl scale-in">
-            <h3 class="text-2xl font-bold text-slate-900 mb-6">Thêm tài khoản mới</h3>
-            <div class="space-y-4">
-                <input type="text" id="newId" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Số hiệu tài khoản (VD: 1111)">
-                <input type="text" id="newName" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tên tài khoản">
-                <select id="newRule" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="inc_dr">Tăng ghi Nợ / Giảm ghi Có</option>
-                    <option value="inc_cr">Tăng ghi Có / Giảm ghi Nợ</option>
-                    <option value="other">Loại kết chuyển / Trung gian</option>
+        <div class="bg-white rounded-xl w-full max-w-xs p-5 shadow-2xl scale-in">
+            <h3 class="text-sm font-bold text-slate-900 mb-4 uppercase">Thêm tài khoản mới</h3>
+            <div class="space-y-3">
+                <input type="text" id="newId" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none" placeholder="Số hiệu tài khoản">
+                <input type="text" id="newName" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none" placeholder="Tên tài khoản">
+                <select id="newRule" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
+                    <option value="inc_dr">Nợ (+) Tăng / Có (-) Giảm</option>
+                    <option value="inc_cr">Có (+) Tăng / Nợ (-) Giảm</option>
+                    <option value="other">Tài khoản trung gian</option>
                 </select>
-                <label class="flex items-center gap-2 cursor-pointer p-1">
-                    <input type="checkbox" id="isFav" class="w-5 h-5 rounded text-blue-600">
-                    <span class="text-slate-600 font-medium">Đánh dấu thông dụng</span>
+                <label class="flex items-center gap-2 cursor-pointer pt-1">
+                    <input type="checkbox" id="isFav" class="w-4 h-4 rounded text-blue-600">
+                    <span class="text-xs text-slate-600">Đánh dấu hay dùng</span>
                 </label>
             </div>
-            <div class="flex gap-3 mt-8">
-                <button onclick="closeAddModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold">Hủy</button>
-                <button onclick="saveNewAccount()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Lưu</button>
+            <div class="flex gap-2 mt-5">
+                <button onclick="closeAddModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold text-xs">Hủy</button>
+                <button onclick="saveNewAccount()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-xs">Lưu</button>
             </div>
         </div>
     </div>
 
     <script>
         const defaultData = [
-
+            
   // --- LOẠI TÀI KHOẢN TÀI SẢN (Bắt đầu bằng 1, 2 -> inc_dr) ---
   { id: "111", name: "Tiền mặt", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "112", name: "Tiền gửi không kỳ hạn", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
@@ -347,30 +420,99 @@
      ];
 
         let rawData = [];
+        let currentFilter = 'all'; 
         let activeModalAccId = null;
 
         function initApp() {
-            const savedData = localStorage.getItem('ketoanData_v4');
+            const savedData = localStorage.getItem('ketoanData_v99');
             rawData = savedData ? JSON.parse(savedData) : [...defaultData];
+            
+            const groupContainer = document.getElementById('groupButtons');
+            for(let i=1; i<=9; i++) {
+                groupContainer.innerHTML += `<button onclick="setFilter('group-${i}')" class="filter-chip" id="filter-group-${i}">${i}</button>`;
+            }
+
             renderList(rawData);
-            updateStats();
+            setupScrollListener();
         }
 
-        function saveData() {
-            localStorage.setItem('ketoanData_v4', JSON.stringify(rawData));
-            updateStats();
+        function setupScrollListener() {
+            const header = document.getElementById('mainHeader');
+            const searchCont = document.getElementById('searchContainer');
+            
+            window.addEventListener('scroll', () => {
+                let st = window.pageYOffset || document.documentElement.scrollTop;
+                if (st > 40) {
+                    header.classList.add('header-hidden');
+                    searchCont.classList.add('search-sticky');
+                } else {
+                    header.classList.remove('header-hidden');
+                    searchCont.classList.remove('search-sticky');
+                }
+            }, false);
         }
 
-        function updateStats() {
-            const cap1 = rawData.filter(a => a.level === 1).length;
-            const cap2 = rawData.filter(a => a.level === 2).length;
-            document.getElementById('totalStats').innerText = `(${cap1} Cấp 1 | ${cap2} Cấp 2)`;
+        function setFilter(type) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`filter-${type}`).classList.add('active');
+            handleSearch();
         }
 
-        function getRuleHTML(rule) {
-            if (rule === 'inc_dr') return '<span class="text-green-600 font-bold">Nợ &uarr;</span> / <span class="text-red-500 font-bold">Có &darr;</span>';
-            if (rule === 'inc_cr') return '<span class="text-red-600 font-bold">Nợ &darr;</span> / <span class="text-green-600 font-bold">Có &uarr;</span>';
-            return '<span class="text-slate-400 italic">Kết chuyển</span>';
+        function handleSearch() {
+            const input = document.getElementById('searchInput');
+            const query = input.value.toLowerCase().trim();
+            
+            let filtered = rawData;
+            if (currentFilter === 'fav') filtered = filtered.filter(a => a.isFavorite);
+            else if (currentFilter.startsWith('group-')) {
+                const num = currentFilter.split('-')[1];
+                filtered = filtered.filter(a => a.id.startsWith(num));
+            }
+
+            if (query) {
+                filtered = filtered.filter(a => 
+                    a.id.includes(query) || a.name.toLowerCase().includes(query)
+                );
+            }
+            renderList(filtered, query);
+        }
+
+        function updateCounter(list) {
+            const l1 = list.filter(a => a.id.length <= 3).length;
+            const l2 = list.filter(a => a.id.length > 3).length;
+            const counterEl = document.getElementById('accountCounter');
+            counterEl.innerHTML = `(${l1} cấp 1, ${l2} cấp 2)`;
+        }
+
+        function renderList(list, query = "") {
+            const body = document.getElementById('accountBody');
+            const empty = document.getElementById('emptyState');
+            
+            updateCounter(list);
+
+            if (list.length === 0) {
+                body.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            let html = '';
+            list.forEach(acc => {
+                const isL2 = acc.level === 2 || acc.id.length > 3;
+                html += `
+                    <tr class="acc-row transition-all-200 cursor-pointer ${isL2 ? 'bg-slate-50/50' : ''}" onclick="openExampleModal('${acc.id}', event)">
+                        <td class="px-1 py-3 font-mono font-bold text-blue-600 text-center text-acc-id truncate">${highlightText(acc.id, query)}</td>
+                        <td class="px-2 py-3">
+                            <div class="flex items-center gap-1 ${isL2 ? 'level-2' : ''} text-acc-name text-slate-800 font-medium">
+                                <span class="break-words">${highlightText(acc.name, query)}</span>
+                                ${acc.isFavorite ? '<span class="favorite-star text-[9px]">★</span>' : ''}
+                            </div>
+                        </td>
+                        <td class="px-1 py-3 text-center">${getRuleHTML(acc.rule)}</td>
+                    </tr>`;
+            });
+            body.innerHTML = html;
         }
 
         function highlightText(text, query) {
@@ -379,142 +521,44 @@
             return text.replace(regex, '<span class="highlight">$1</span>');
         }
 
-        function renderList(list, query = "") {
-            const body = document.getElementById('accountBody');
-            const empty = document.getElementById('emptyState');
-            
-            if (list.length === 0) {
-                body.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-            
-            empty.classList.add('hidden');
-            let html = '';
-            list.forEach(acc => {
-                const isLevel2 = acc.level === 2;
-                let examplesHTML = '';
-                if (query && acc.examples && acc.examples.length > 0) {
-                    const matched = acc.examples.filter(ex => ex.question.toLowerCase().includes(query));
-                    if (matched.length > 0) {
-                        examplesHTML += `<div class="mt-3 space-y-2">`;
-                        matched.forEach(ex => {
-                            examplesHTML += `
-                                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg text-sm shadow-sm scale-in">
-                                    <div class="font-bold text-yellow-800 mb-1 border-b border-yellow-100 pb-1">Đề bài: <span class="font-normal text-slate-700">${highlightText(ex.question, query)}</span></div>
-                                    <div class="font-bold text-green-700 mt-1">Đáp án: <span class="font-mono text-slate-900">${ex.answer}</span></div>
-                                </div>`;
-                        });
-                        examplesHTML += `</div>`;
-                    }
-                }
-                
-                html += `
-                    <tr class="acc-row transition-all cursor-pointer ${isLevel2 ? 'bg-slate-50/50' : ''}" onclick="openExampleModal('${acc.id}', event)">
-                        <td class="px-6 py-4 font-mono font-bold text-blue-600 text-center text-sm">${highlightText(acc.id, query)}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2 ${isLevel2 ? 'level-2 text-sm' : 'font-semibold text-slate-800'}">
-                                <span>${highlightText(acc.name, query)}</span>
-                                ${acc.isFavorite ? '<span class="favorite-star text-sm">★</span>' : ''}
-                                ${acc.examples && acc.examples.length > 0 ? `<span class="ml-2 text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-md">${acc.examples.length} VD</span>` : ''}
-                            </div>
-                            ${examplesHTML}
-                        </td>
-                        <td class="px-6 py-4 text-xs whitespace-nowrap">${getRuleHTML(acc.rule)}</td>
-                        <td class="px-6 py-4 text-right">
-                             <button onclick="confirmDelete('${acc.id}', event)" class="p-2 text-slate-300 hover:text-red-500 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                             </button>
-                        </td>
-                    </tr>`;
-            });
-            body.innerHTML = html;
+        function getRuleHTML(rule) {
+            if (rule === 'inc_dr') return `
+                <div class="flex flex-col items-center justify-center leading-none">
+                    <span class="text-green-600 font-bold text-[10px]">Nợ <span class="arrow-up">↑</span></span>
+                    <span class="text-red-400 text-[10px] mt-0.5">Có <span class="arrow-down">↓</span></span>
+                </div>`;
+            if (rule === 'inc_cr') return `
+                <div class="flex flex-col items-center justify-center leading-none">
+                    <span class="text-red-400 text-[10px]">Nợ <span class="arrow-down">↓</span></span>
+                    <span class="text-green-600 font-bold text-[10px] mt-0.5">Có <span class="arrow-up">↑</span></span>
+                </div>`;
+            return '<span class="text-slate-400 text-[9px] font-medium">TG</span>';
         }
 
-        function handleSearch() {
-            const input = document.getElementById('searchInput');
-            const val = input.value.toLowerCase().trim();
-            if (!val) { renderList(rawData); return; }
-            const filtered = rawData.filter(a => a.id.includes(val) || a.name.toLowerCase().includes(val) || (a.examples && a.examples.some(ex => ex.question.toLowerCase().includes(val))));
-            renderList(filtered, val);
+        function saveData() {
+            localStorage.setItem('ketoanData_v99', JSON.stringify(rawData));
         }
 
-        function toggleSettingsMenu() {
-            document.getElementById('settingsMenu').classList.toggle('hidden');
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.closest('.relative')) {
-                document.getElementById('settingsMenu').classList.add('hidden');
-            }
-        }
-
-        // --- Import/Export ---
-        function exportData() {
-            const dataStr = JSON.stringify(rawData, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "tai_khoan_ke_toan.json";
-            link.click();
-            URL.revokeObjectURL(url);
-            toggleSettingsMenu();
-            showMessage("Đã xuất dữ liệu thành công!");
-        }
-
-        function triggerImport() {
-            document.getElementById('importFile').click();
-            toggleSettingsMenu();
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        // XÓA TẤT CẢ VÀ NẠP MỚI
-                        rawData = imported;
-                        saveData();
-                        handleSearch();
-                        showMessage("Đã nạp dữ liệu mới thành công!");
-                    } else {
-                        showMessage("File không đúng cấu trúc!", "error");
-                    }
-                } catch (err) {
-                    showMessage("Lỗi khi đọc file!", "error");
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Reset input
-        }
-
-        // --- Ví dụ ---
         function openExampleModal(id, event) {
-            if(event.target.closest('button')) return;
             activeModalAccId = id;
             const acc = rawData.find(a => a.id === id);
-            document.getElementById('exampleModalTitle').innerText = `TK ${acc.id} - ${acc.name}`;
+            document.getElementById('exampleModalTitle').innerText = `TK ${acc.id}: ${acc.name}`;
             renderModalExamples(acc);
             document.getElementById('exampleModal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
         }
 
         function renderModalExamples(acc) {
             const list = document.getElementById('existingExamplesList');
             if(!acc.examples || acc.examples.length === 0) {
-                list.innerHTML = `<div class="text-center py-6 text-slate-400 italic">Chưa có ví dụ.</div>`;
+                list.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs italic">Chưa có ví dụ cho tài khoản này.</div>`;
                 return;
             }
             list.innerHTML = acc.examples.map((ex, i) => `
-                <div class="bg-white border border-slate-200 p-4 rounded-xl relative group">
-                    <button onclick="deleteExample(${i})" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                    <div class="text-sm font-bold text-slate-800">Đề bài: <span class="font-normal">${ex.question}</span></div>
-                    <div class="text-sm font-mono text-blue-700 bg-blue-50 p-2 rounded mt-2">Đáp án: ${ex.answer}</div>
+                <div class="bg-slate-50 border border-slate-100 p-3 rounded-lg relative shadow-sm">
+                    <button onclick="deleteExample(${i})" class="absolute top-2 right-2 text-slate-300 hover:text-red-400">×</button>
+                    <div class="text-xs font-semibold text-slate-700 leading-tight pr-4">${ex.question}</div>
+                    <div class="text-[10px] font-mono text-blue-600 mt-2 bg-white p-1.5 rounded border border-blue-50">${ex.answer}</div>
                 </div>`).join('');
         }
 
@@ -523,12 +567,13 @@
             const a = document.getElementById('exAnswer').value.trim();
             if(!q || !a) return;
             const idx = rawData.findIndex(acc => acc.id === activeModalAccId);
+            if (!rawData[idx].examples) rawData[idx].examples = [];
             rawData[idx].examples.push({ question: q, answer: a });
             saveData();
             renderModalExamples(rawData[idx]);
             document.getElementById('exQuestion').value = "";
             document.getElementById('exAnswer').value = "";
-            handleSearch();
+            renderList(rawData);
         }
 
         function deleteExample(i) {
@@ -536,39 +581,78 @@
             rawData[idx].examples.splice(i, 1);
             saveData();
             renderModalExamples(rawData[idx]);
-            handleSearch();
+            renderList(rawData);
         }
 
-        function closeExampleModal() { document.getElementById('exampleModal').classList.add('hidden'); }
-        function openAddModal() { document.getElementById('addModal').classList.remove('hidden'); toggleSettingsMenu(); }
-        function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); }
+        function deleteAccount() {
+            if(confirm("Xác nhận xóa tài khoản này khỏi danh sách?")) {
+                rawData = rawData.filter(a => a.id !== activeModalAccId);
+                saveData();
+                handleSearch();
+                closeExampleModal();
+            }
+        }
+
+        function closeExampleModal() { 
+            document.getElementById('exampleModal').classList.add('hidden'); 
+            document.body.classList.remove('modal-open');
+        }
+
+        function openAddModal() { 
+            document.getElementById('addModal').classList.remove('hidden'); 
+            document.body.classList.add('modal-open');
+            toggleSettingsMenu(); 
+        }
+
+        function closeAddModal() { 
+            document.getElementById('addModal').classList.add('hidden'); 
+            document.body.classList.remove('modal-open');
+        }
 
         function saveNewAccount() {
             const id = document.getElementById('newId').value.trim();
             const name = document.getElementById('newName').value.trim();
             if(!id || !name) return;
-            rawData.unshift({ id, name, rule: document.getElementById('newRule').value, level: id.length > 3 ? 2 : 1, isFavorite: document.getElementById('isFav').checked, examples: [] });
-            rawData.sort((a,b) => a.id.localeCompare(b.id));
+            rawData.push({ 
+                id, name, 
+                rule: document.getElementById('newRule').value, 
+                level: id.length > 3 ? 2 : 1, 
+                isFavorite: document.getElementById('isFav').checked, 
+                examples: [] 
+            });
+            rawData.sort((a,b) => a.id.localeCompare(b.id, undefined, {numeric: true}));
             saveData();
             handleSearch();
             closeAddModal();
         }
 
-        function confirmDelete(id, event) {
-            event.stopPropagation();
-            if(confirm(`Xóa tài khoản ${id}?`)) {
-                rawData = rawData.filter(a => a.id !== id);
-                saveData();
-                handleSearch();
-            }
+        function toggleSettingsMenu() {
+            document.getElementById('settingsMenu').classList.toggle('hidden');
         }
 
-        function showMessage(msg, type = "success") {
-            const t = document.createElement('div');
-            t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl shadow-xl text-white font-bold z-[200] scale-in ${type === 'success' ? 'bg-slate-900' : 'bg-red-600'}`;
-            t.innerText = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
+        function exportData() {
+            const blob = new Blob([JSON.stringify(rawData, null, 2)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `ketoan_tt99_${new Date().getTime()}.json`;
+            link.click();
+            toggleSettingsMenu();
+        }
+
+        function triggerImport() { document.getElementById('importFile').click(); toggleSettingsMenu(); }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    rawData = JSON.parse(e.target.result);
+                    saveData();
+                    handleSearch();
+                } catch(e) { alert("File không hợp lệ!"); }
+            };
+            reader.readAsText(file);
         }
     </script>
 </body>
