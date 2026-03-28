@@ -103,6 +103,19 @@
 
         .arrow-up { font-size: 1.1rem; vertical-align: middle; line-height: 1; }
         .arrow-down { font-size: 1.1rem; vertical-align: middle; line-height: 1; }
+
+        /* Định dạng link tài khoản trong ví dụ */
+        .acc-link {
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+        .acc-link:hover {
+            color: #1e40af;
+            background-color: #eff6ff;
+        }
     </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen flex flex-col" onload="initApp()">
@@ -204,7 +217,7 @@
             <div id="existingExamplesList" class="flex-1 overflow-y-auto no-scrollbar mb-4 space-y-2"></div>
             <div class="bg-blue-50 p-3 rounded-xl space-y-2">
                 <textarea id="exQuestion" rows="2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none" placeholder="Nhập nghiệp vụ ví dụ..."></textarea>
-                <input type="text" id="exAnswer" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono" placeholder="Định khoản (VD: N111/C112)">
+                <textarea id="exAnswer" rows="2" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-mono outline-none" placeholder="Định khoản (VD: N111/C112) - Xuống dòng được"></textarea>
                 <button onclick="addNewExample()" class="w-full py-2 bg-blue-600 text-white rounded-lg font-bold text-xs shadow-sm">Lưu ví dụ</button>
             </div>
         </div>
@@ -236,8 +249,7 @@
 
     <script>
         const defaultData = [
-                       
-  // --- LOẠI TÀI KHOẢN TÀI SẢN (Bắt đầu bằng 1, 2 -> inc_dr) ---
+    // --- LOẠI TÀI KHOẢN TÀI SẢN (Bắt đầu bằng 1, 2 -> inc_dr) ---
   { id: "111", name: "Tiền mặt", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "112", name: "Tiền gửi không kỳ hạn", rule: "inc_dr", level: 1, isFavorite: true, examples: [] },
   { id: "113", name: "Tiền đang chuyển", rule: "inc_dr", level: 1, isFavorite: false, examples: [] },
@@ -416,8 +428,7 @@
   { id: "8211", name: "Chi phí thuế TNDN hiện hành", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
   { id: "8212", name: "Chi phí thuế TNDN hoãn lại", rule: "inc_dr", level: 2, isFavorite: false, examples: [] },
  { id: "911", name: "Xác định kết quả kinh doanh", rule: "other", level: 1, isFavorite: true, examples: [{question: "Kết chuyển giá vốn hàng bán cuối kỳ", answer: "Nợ 911 / Có 632"}] },
- 
-        ];
+ ];
 
         let rawData = [];
         let currentFilter = 'all'; 
@@ -458,11 +469,15 @@
             handleSearch();
         }
 
-        function handleSearch() {
+        function handleSearch(customQuery = null) {
             const input = document.getElementById('searchInput');
+            if (customQuery !== null) {
+                input.value = customQuery;
+            }
             const query = input.value.toLowerCase().trim();
             
             let filtered = rawData;
+            
             if (currentFilter === 'fav') filtered = filtered.filter(a => a.isFavorite);
             else if (currentFilter.startsWith('group-')) {
                 const num = currentFilter.split('-')[1];
@@ -470,10 +485,28 @@
             }
 
             if (query) {
-                filtered = filtered.filter(a => 
-                    a.id.includes(query) || a.name.toLowerCase().includes(query)
-                );
+                const results = filtered.map(acc => {
+                    let score = -1;
+                    const id = acc.id.toLowerCase();
+                    const name = acc.name.toLowerCase();
+                    
+                    if (id.startsWith(query)) score = 100 - (id.length - query.length); 
+                    else if (id.includes(query)) score = 80;
+                    else if (name.includes(query)) score = 60;
+                    else if (acc.examples && acc.examples.some(ex => 
+                        ex.question.toLowerCase().includes(query) || ex.answer.toLowerCase().includes(query)
+                    )) score = 40;
+
+                    return { ...acc, _score: score };
+                });
+
+                filtered = results
+                    .filter(r => r._score > -1)
+                    .sort((a, b) => b._score - a._score || a.id.localeCompare(b.id, undefined, {numeric: true}));
+            } else {
+                filtered.sort((a,b) => a.id.localeCompare(b.id, undefined, {numeric: true}));
             }
+            
             renderList(filtered, query);
         }
 
@@ -520,6 +553,24 @@
             return text.replace(regex, '<span class="highlight">$1</span>');
         }
 
+        // Tự động nhận diện tài khoản và biến thành link
+        function formatAccountingCode(text) {
+            if (!text) return '';
+            // Nhận diện các chuỗi số từ 3 chữ số trở lên (mã tài khoản)
+            const regex = /(\b\d{3,}\b)/g;
+            // Chuyển xuống dòng và tạo link
+            return text.replace(/\n/g, '<br>').replace(regex, '<span class="acc-link" onclick="jumpToAccount(\'$1\', event)">$1</span>');
+        }
+
+        function jumpToAccount(id, event) {
+            if (event) event.stopPropagation();
+            closeExampleModal();
+            setFilter('all');
+            handleSearch(id);
+            // Cuộn lên đầu trang để thấy kết quả
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function getRuleHTML(rule) {
             if (rule === 'inc_dr') return `
                 <div class="flex flex-col items-center justify-center leading-none">
@@ -557,7 +608,9 @@
                 <div class="bg-slate-50 border border-slate-100 p-3 rounded-lg relative shadow-sm">
                     <button onclick="deleteExample(${i})" class="absolute top-2 right-2 text-slate-300 hover:text-red-400">×</button>
                     <div class="text-xs font-semibold text-slate-700 leading-tight pr-4">${ex.question}</div>
-                    <div class="text-[10px] font-mono text-blue-600 mt-2 bg-white p-1.5 rounded border border-blue-50">${ex.answer}</div>
+                    <div class="text-[10px] font-mono text-slate-600 mt-2 bg-white p-2 rounded border border-blue-50 leading-relaxed">
+                        ${formatAccountingCode(ex.answer)}
+                    </div>
                 </div>`).join('');
         }
 
@@ -617,7 +670,6 @@
                 isFavorite: document.getElementById('isFav').checked, 
                 examples: [] 
             });
-            rawData.sort((a,b) => a.id.localeCompare(b.id, undefined, {numeric: true}));
             saveData();
             handleSearch();
             closeAddModal();
