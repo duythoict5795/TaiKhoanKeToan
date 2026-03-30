@@ -3,666 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ứng Dụng Học Trắc Nghiệm</title>
+    <title>Học Trắc Nghiệm Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
-        }
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; font-size: 13px; }
+        .ql-editor { min-height: 60px; font-size: 13px; padding: 8px; }
+        .ql-editor table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+        .ql-editor table td { border: 1px solid #cbd5e1; padding: 3px 6px; }
+        .highlight { background-color: #fde047; font-weight: bold; border-radius: 2px; }
+        .fade-in { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-primary { @apply bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-sm text-sm; }
+        .btn-outline { @apply border border-slate-200 bg-white text-slate-600 px-4 py-2 rounded-lg font-medium hover:bg-slate-50 transition text-sm; }
+        .question-card h3 { font-size: 14px; font-weight: 500; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-10">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-bold flex items-center gap-2 cursor-pointer" onclick="showView('menu-view')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                Học Trắc Nghiệm
+    <header class="bg-blue-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-lg font-bold flex items-center gap-2 cursor-pointer" onclick="showView('menu-view')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                TRẮC NGHIỆM PRO
             </h1>
-            <button onclick="showView('menu-view')" id="btn-home" class="hidden text-blue-100 hover:text-white transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-            </button>
+            <div id="nav-btns" class="hidden flex gap-2">
+                <button onclick="showView('menu-view')" class="p-2 hover:bg-blue-700 rounded-full transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-6 relative">
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-4">
         
-        <!-- 1. GIAO DIỆN CHÍNH (MENU) -->
-        <div id="menu-view" class="fade-in grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <button onclick="showView('review-view'); renderQuestionList();" class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200 flex flex-col items-center justify-center gap-4 group text-blue-600 hover:bg-blue-50">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-                <span class="text-xl font-bold">Ôn Câu Hỏi</span>
-            </button>
-            <button onclick="startPracticeMode()" class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200 flex flex-col items-center justify-center gap-4 group text-emerald-600 hover:bg-emerald-50">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="text-xl font-bold">Câu Hỏi Ngẫu Nhiên</span>
-            </button>
-            <button onclick="exportData()" class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200 flex flex-col items-center justify-center gap-3 group text-amber-600 hover:bg-amber-50">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span class="text-lg font-semibold">Xuất Dữ Liệu</span>
-            </button>
-            <label class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200 flex flex-col items-center justify-center gap-3 group text-purple-600 hover:bg-purple-50 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-                <span class="text-lg font-semibold">Nhập Dữ Liệu</span>
-                <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
-            </label>
-        </div>
-
-        <!-- 2. GIAO DIỆN ÔN CÂU HỎI -->
-        <div id="review-view" class="hidden fade-in space-y-4">
-            <div class="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 gap-4">
-                <div class="text-lg font-semibold text-slate-700">
-                    Tổng số: <span id="total-questions" class="text-blue-600">0</span> câu
-                </div>
-                
-                <!-- Thanh tìm kiếm mới -->
-                <div class="relative w-full md:w-1/2">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </span>
-                    <input type="text" id="search-input" oninput="renderQuestionList()" placeholder="Tìm kiếm câu hỏi hoặc đáp án..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-
-                <button onclick="showAddForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 w-full md:w-auto justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Thêm Câu Hỏi
-                </button>
-            </div>
-            
-            <div id="questions-list" class="space-y-4 pb-10">
-                <!-- Danh sách câu hỏi sẽ được render ở đây -->
-            </div>
-        </div>
-
-        <!-- 3. GIAO DIỆN THÊM CÂU HỎI -->
-        <div id="add-view" class="hidden fade-in bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h2 class="text-xl font-bold mb-4 text-slate-800">Thêm Câu Hỏi Mới</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Đề câu hỏi *</label>
-                    <textarea id="add-q-text" rows="3" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Nhập nội dung câu hỏi..."></textarea>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Đáp án (Chọn nút tròn cho đáp án đúng) *</label>
-                    <div id="options-container" class="space-y-2">
-                        <!-- Options will be generated here -->
+        <!-- MENU CHÍNH -->
+        <div id="menu-view" class="fade-in space-y-6 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center space-y-4">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                     </div>
-                    <button onclick="addOptionField()" class="mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Thêm đáp án
+                    <div>
+                        <h3 class="font-bold text-lg">Quản Lý Ngân Hàng Câu Hỏi</h3>
+                        <p class="text-slate-500 text-xs">Thêm, sửa, xóa và tìm kiếm câu hỏi.</p>
+                    </div>
+                    <button onclick="showView('review-view'); renderQuestionList();" class="btn-primary w-full">Vào Quản Lý</button>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center space-y-4">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">Luyện Tập</h3>
+                        <p class="text-slate-500 text-xs">Bắt đầu bài trắc nghiệm theo phạm vi.</p>
+                    </div>
+                    <button onclick="openPracticeConfig()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-emerald-700 transition w-full text-sm">Bắt Đầu Học</button>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center justify-between">
+                <div>
+                    <span class="text-blue-800 font-bold" id="stats-count">0</span>
+                    <span class="text-blue-600 text-xs ml-1">Câu hỏi hiện có</span>
+                </div>
+                <a href="index.html" class="text-blue-600 text-xs ml-1">Số Tài Khoản Kế Toán</a>
+                <div class="flex gap-2">
+                    <button onclick="exportData()" class="btn-outline flex items-center gap-1 py-1 px-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Xuất File
                     </button>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Giải thích đáp án (Tùy chọn)</label>
-                    <textarea id="add-q-explanation" rows="2" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Nhập lời giải thích..."></textarea>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button onclick="showView('review-view')" class="px-5 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition">Hủy</button>
-                    <button onclick="saveQuestion()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition shadow-sm">Lưu Câu Hỏi</button>
+                    <label class="btn-outline flex items-center gap-1 py-1 px-3 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg> Nhập File
+                        <input type="file" id="import-file" class="hidden" accept=".json" onchange="importData(event)">
+                    </label>
                 </div>
             </div>
         </div>
 
-        <!-- 4. GIAO DIỆN CÂU HỎI NGẪU NHIÊN (PRACTICE) -->
-        <div id="practice-view" class="hidden fade-in">
-            <!-- Practice Header -->
-            <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-4 sticky top-[72px] z-10">
+        <!-- CẤU HÌNH LUYỆN TẬP -->
+        <div id="config-view" class="hidden fade-in fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl space-y-4">
+                <h3 class="text-lg font-bold">Cấu hình luyện tập</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
+                        <input type="radio" name="range-type" value="all" checked onchange="toggleRangeInputs()">
+                        <span class="text-sm font-medium">Tất cả câu hỏi</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
+                        <input type="radio" name="range-type" value="custom" onchange="toggleRangeInputs()">
+                        <span class="text-sm font-medium">Theo phạm vi (Câu ... đến câu ...)</span>
+                    </label>
+                    <div id="range-inputs" class="hidden grid grid-cols-2 gap-2 pl-8">
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-400">Từ câu</label>
+                            <input type="number" id="range-from" value="1" min="1" class="w-full border rounded-lg px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-400">Đến câu</label>
+                            <input type="number" id="range-to" value="10" min="1" class="w-full border rounded-lg px-3 py-2 text-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button onclick="document.getElementById('config-view').classList.add('hidden')" class="btn-outline flex-grow">Hủy</button>
+                    <button onclick="startPracticeMode()" class="btn-primary flex-grow">Bắt Đầu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEW VIEW -->
+        <div id="review-view" class="hidden fade-in space-y-4">
+            <div class="bg-white p-3 rounded-xl shadow-sm border flex flex-col md:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <input type="text" id="search-input" oninput="renderQuestionList()" placeholder="Tìm kiếm không dấu..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                </div>
+                <button onclick="showAddForm()" class="btn-primary whitespace-nowrap">Thêm Câu Hỏi Mới</button>
+            </div>
+            <div id="questions-list" class="space-y-3 pb-10"></div>
+        </div>
+
+        <!-- EDITOR VIEW -->
+        <div id="editor-view" class="hidden fade-in bg-white p-5 rounded-xl border shadow-sm space-y-4">
+            <h2 id="editor-title" class="text-lg font-bold">Thêm Câu Hỏi</h2>
+            <input type="hidden" id="edit-q-id">
+            
+            <div class="space-y-1">
+                <label class="text-[11px] font-bold text-slate-500 uppercase">Nội dung câu hỏi</label>
+                <div id="q-editor-container" class="bg-white rounded-lg border overflow-hidden"></div>
+            </div>
+            
+            <div class="space-y-3">
+                <label class="text-[11px] font-bold text-slate-500 uppercase">Các đáp án (Chọn 1 câu đúng)</label>
+                <div id="options-editor-list" class="space-y-2"></div>
+                <button onclick="addOptionEditorField()" class="text-blue-600 text-[11px] font-bold">+ Thêm lựa chọn</button>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-[11px] font-bold text-slate-500 uppercase">Giải thích</label>
+                <div id="exp-editor-container" class="bg-white rounded-lg border overflow-hidden"></div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-4 border-t">
+                <button onclick="showView('review-view')" class="btn-outline">Hủy</button>
+                <button onclick="saveQuestion()" class="btn-primary px-8">Lưu Lại</button>
+            </div>
+        </div>
+
+        <!-- PRACTICE VIEW -->
+        <div id="practice-view" class="hidden fade-in space-y-4">
+            <div class="flex justify-between items-center bg-white p-3 rounded-xl border shadow-sm">
                 <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2 text-amber-600 font-bold bg-amber-50 px-3 py-1.5 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span id="timer-display">00:00</span>
-                    </div>
-                    <div class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
-                        Đã trả lời: <span id="answered-count" class="font-bold text-blue-600">0</span> / <span id="practice-total">0</span>
-                    </div>
+                    <span id="timer-display" class="font-mono font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">00:00</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase">Câu <span id="current-q-num">1</span>/<span id="total-q-num">0</span></span>
                 </div>
-                <button onclick="endPractice()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-lg font-medium transition shadow-sm">
-                    Kết Thúc
-                </button>
+                <button onclick="endPractice()" class="text-rose-600 font-bold text-xs uppercase">Kết thúc</button>
             </div>
-
-            <!-- Current Question -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h3 id="practice-q-text" class="text-xl font-semibold text-slate-800 mb-6 leading-relaxed"></h3>
-                <div id="practice-options" class="space-y-3">
-                    <!-- Practice options will go here -->
-                </div>
+            <div id="practice-card" class="bg-white p-6 rounded-2xl border shadow-sm space-y-6">
+                <div id="practice-q-content" class="ql-editor !p-0"></div>
+                <div id="practice-options-list" class="grid grid-cols-1 gap-3"></div>
             </div>
         </div>
 
-        <!-- 5. GIAO DIỆN KẾT QUẢ SAU KHI KẾT THÚC -->
-        <div id="result-view" class="hidden fade-in bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
-            <h2 class="text-3xl font-bold text-slate-800 mb-2">Kết Quả</h2>
-            <p class="text-slate-500 mb-8">Bạn đã hoàn thành phiên luyện tập</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
-                    <div class="text-amber-600 mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="text-sm text-slate-600 font-medium">Thời Gian</div>
-                    <div id="res-time" class="text-3xl font-bold text-slate-800 mt-1">00:00</div>
-                </div>
-                <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100">
-                    <div class="text-emerald-600 mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="text-sm text-slate-600 font-medium">Câu Đúng</div>
-                    <div id="res-correct" class="text-3xl font-bold text-emerald-600 mt-1">0</div>
-                </div>
-                <div class="bg-rose-50 p-6 rounded-xl border border-rose-100">
-                    <div class="text-rose-600 mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="text-sm text-slate-600 font-medium">Câu Sai</div>
-                    <div id="res-wrong" class="text-3xl font-bold text-rose-600 mt-1">0</div>
-                </div>
-            </div>
-
+        <!-- RESULT VIEW -->
+        <div id="result-view" class="hidden fade-in bg-white p-8 rounded-2xl border text-center space-y-6">
+            <h2 class="text-2xl font-bold">Kết Quả Luyện Tập</h2>
             <div class="flex justify-center gap-4">
-                <button onclick="showView('menu-view')" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition">Trang Chủ</button>
-                <button id="btn-show-wrong" onclick="showWrongReview()" class="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-medium transition shadow-sm hidden">Xem Lại Câu Sai</button>
+                <div class="p-4 bg-emerald-50 rounded-2xl w-28 border border-emerald-100">
+                    <div class="text-3xl font-bold text-emerald-600" id="res-correct">0</div>
+                    <div class="text-[10px] font-bold uppercase text-emerald-500">Đúng</div>
+                </div>
+                <div class="p-4 bg-rose-50 rounded-2xl w-28 border border-rose-100">
+                    <div class="text-3xl font-bold text-rose-600" id="res-wrong">0</div>
+                    <div class="text-[10px] font-bold uppercase text-rose-500">Sai</div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2 max-w-xs mx-auto">
+                <button id="btn-view-wrong" onclick="showWrongAnswers()" class="btn-outline border-rose-200 text-rose-600 hover:bg-rose-50">Xem Lại Câu Sai</button>
+                <button onclick="showView('menu-view')" class="btn-primary">Quay Lại Menu</button>
             </div>
         </div>
 
-        <!-- 6. GIAO DIỆN XEM LẠI CÂU SAI -->
-        <div id="wrong-review-view" class="hidden fade-in space-y-4">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-rose-600 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    Danh Sách Câu Làm Sai
-                </h2>
-                <button onclick="showView('result-view')" class="text-sm font-medium text-slate-500 hover:text-slate-800 px-4 py-2 bg-white rounded-lg border border-slate-200">Quay lại kết quả</button>
+        <!-- WRONG ANSWERS VIEW -->
+        <div id="wrong-answers-view" class="hidden fade-in space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold text-rose-600 uppercase">Các câu đã trả lời sai</h2>
+                <button onclick="showView('result-view')" class="text-slate-500 text-xs font-bold underline">Quay lại kết quả</button>
             </div>
-            
-            <div id="wrong-list-container" class="space-y-4">
-                <!-- Wrong questions will be rendered here -->
-            </div>
+            <div id="wrong-list" class="space-y-4"></div>
         </div>
 
     </main>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform translate-y-20 opacity-0 z-50">
-        Message
-    </div>
-
     <script>
-        // --- DATA STATE ---
-        let questions = JSON.parse(localStorage.getItem('mcq_questions')) || [];
-        
-        // Practice State
-        let practiceQueue = [];
-        let currentPracticeIndex = 0;
-        let timerSeconds = 0;
-        let timerInterval = null;
-        let correctCount = 0;
-        let wrongAnswers = []; 
+        const quillConfig = { modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }, { 'background': [] }], ['clean']] }, theme: 'snow' };
+        let qEditor, expEditor, questions = JSON.parse(localStorage.getItem('mcq_v2')) || [];
+        let practiceState = { queue: [], current: 0, correct: 0, timer: null, seconds: 0, wrongAnswers: [] };
 
-        // --- CORE NAVIGATION ---
-        function showView(viewId) {
-            const views = ['menu-view', 'review-view', 'add-view', 'practice-view', 'result-view', 'wrong-review-view'];
-            views.forEach(id => {
-                document.getElementById(id).classList.add('hidden');
+        window.onload = () => {
+            qEditor = new Quill('#q-editor-container', quillConfig);
+            expEditor = new Quill('#exp-editor-container', quillConfig);
+            updateStats();
+        };
+
+        function showView(id) {
+            ['menu-view', 'review-view', 'editor-view', 'practice-view', 'result-view', 'wrong-answers-view'].forEach(v => {
+                document.getElementById(v).classList.add('hidden');
             });
-            document.getElementById(viewId).classList.remove('hidden');
-
-            const btnHome = document.getElementById('btn-home');
-            if (viewId === 'menu-view') {
-                btnHome.classList.add('hidden');
-            } else {
-                btnHome.classList.remove('hidden');
-            }
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('nav-btns').classList.toggle('hidden', id === 'menu-view');
+            if (id === 'menu-view') updateStats();
         }
 
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'} text-white`;
-            
-            setTimeout(() => {
-                toast.classList.remove('translate-y-20', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
+        function updateStats() {
+            document.getElementById('stats-count').innerText = questions.length;
         }
 
-        // --- FEATURE 1: ÔN CÂU HỎI (REVIEW) ---
-        function renderQuestionList() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const container = document.getElementById('questions-list');
-            container.innerHTML = '';
-
-            // Lọc câu hỏi dựa trên ô tìm kiếm
-            const filteredQuestions = questions.filter(q => {
-                const inText = q.text.toLowerCase().includes(searchTerm);
-                const inOptions = q.options.some(opt => opt.text.toLowerCase().includes(searchTerm));
-                return inText || inOptions;
-            });
-
-            document.getElementById('total-questions').textContent = filteredQuestions.length;
-
-            if (questions.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 bg-white rounded-xl border border-slate-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
-                        <p class="text-slate-500">Chưa có câu hỏi nào. Hãy thêm câu hỏi mới!</p>
-                    </div>`;
-                return;
-            }
-
-            if (filteredQuestions.length === 0 && searchTerm) {
-                container.innerHTML = `
-                    <div class="text-center py-10 bg-white rounded-xl border border-slate-200">
-                        <p class="text-slate-500">Không tìm thấy câu hỏi nào phù hợp với từ khóa "${searchTerm}"</p>
-                    </div>`;
-                return;
-            }
-
-            filteredQuestions.forEach((q, index) => {
-                let optionsHtml = q.options.map((opt, i) => `
-                    <div class="flex items-start gap-2 mb-1">
-                        <span class="mt-1 ${opt.isCorrect ? 'text-emerald-500' : 'text-slate-400'}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                        </span>
-                        <span class="${opt.isCorrect ? 'font-medium text-emerald-700' : 'text-slate-600'}">${opt.text}</span>
-                    </div>
-                `).join('');
-
-                let expHtml = q.explanation ? `
-                    <div class="mt-3 pt-3 border-t border-slate-100 text-sm text-slate-500">
-                        <span class="font-semibold text-slate-700">Giải thích:</span> ${q.explanation}
-                    </div>` : '';
-
-                const qEl = document.createElement('div');
-                qEl.className = 'bg-white p-5 rounded-xl shadow-sm border border-slate-200';
-                qEl.innerHTML = `
-                    <div class="flex justify-between items-start gap-4">
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-slate-800 mb-3 text-lg">Câu ${index + 1}: ${q.text}</h3>
-                            <div class="pl-2">
-                                ${optionsHtml}
-                            </div>
-                            ${expHtml}
-                        </div>
-                        <button onclick="deleteQuestion(${q.id})" class="text-slate-400 hover:text-rose-500 transition p-2 bg-slate-50 rounded-lg hover:bg-rose-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(qEl);
-            });
+        function removeAccents(str) {
+            return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
         }
 
-        function deleteQuestion(id) {
-            if (confirm('Bạn có chắc muốn xóa câu hỏi này?')) {
-                questions = questions.filter(q => q.id !== id);
-                localStorage.setItem('mcq_questions', JSON.stringify(questions));
-                renderQuestionList();
-                showToast('Đã xóa câu hỏi');
-            }
-        }
-
-        // --- FEATURE 1b: THÊM CÂU HỎI (ADD) ---
-        let optionCount = 0;
-        function showAddForm() {
-            document.getElementById('add-q-text').value = '';
-            document.getElementById('add-q-explanation').value = '';
-            document.getElementById('options-container').innerHTML = '';
-            optionCount = 0;
-            for(let i=0; i<4; i++) addOptionField();
-            showView('add-view');
-        }
-
-        function addOptionField() {
-            optionCount++;
-            const container = document.getElementById('options-container');
-            const div = document.createElement('div');
-            div.className = 'flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-200';
-            div.innerHTML = `
-                <input type="radio" name="correct-option" value="${optionCount}" class="w-5 h-5 text-blue-600 cursor-pointer">
-                <input type="text" id="opt-${optionCount}" class="flex-grow p-2 bg-white border border-slate-300 rounded-md outline-none focus:border-blue-500 transition" placeholder="Nội dung đáp án...">
-                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-rose-500 p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            `;
-            container.appendChild(div);
-            
-            if (document.querySelectorAll('input[name="correct-option"]:checked').length === 0) {
-                div.querySelector('input[type="radio"]').checked = true;
-            }
-        }
-
-        function saveQuestion() {
-            const text = document.getElementById('add-q-text').value.trim();
-            const explanation = document.getElementById('add-q-explanation').value.trim();
-            
-            if (!text) {
-                showToast('Vui lòng nhập nội dung câu hỏi!', 'error');
-                return;
-            }
-
-            const optionInputs = document.querySelectorAll('#options-container input[type="text"]');
-            const radioInputs = document.querySelectorAll('#options-container input[type="radio"]');
-            
-            let options = [];
-            let hasCorrect = false;
-
-            for (let i = 0; i < optionInputs.length; i++) {
-                const optText = optionInputs[i].value.trim();
-                if (optText) {
-                    const isCorrect = radioInputs[i].checked;
-                    if (isCorrect) hasCorrect = true;
-                    options.push({ text: optText, isCorrect: isCorrect });
-                }
-            }
-
-            if (options.length < 2) {
-                showToast('Vui lòng nhập ít nhất 2 đáp án!', 'error');
-                return;
-            }
-            if (!hasCorrect) {
-                showToast('Vui lòng chọn 1 đáp án đúng!', 'error');
-                return;
-            }
-
-            const newQuestion = {
-                id: Date.now(),
-                text: text,
-                options: options,
-                explanation: explanation
-            };
-
-            questions.push(newQuestion);
-            localStorage.setItem('mcq_questions', JSON.stringify(questions));
-            
-            showToast('Thêm câu hỏi thành công!');
-            showView('review-view');
-            renderQuestionList();
-        }
-
-        // --- FEATURE 2: CÂU HỎI NGẪU NHIÊN (PRACTICE) ---
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
-
-        function startPracticeMode() {
-            if (questions.length === 0) {
-                showToast('Chưa có câu hỏi nào để luyện tập!', 'error');
-                return;
-            }
-
-            practiceQueue = shuffleArray([...questions]);
-            practiceQueue = practiceQueue.map(q => {
-                let newQ = JSON.parse(JSON.stringify(q));
-                newQ.options = shuffleArray(newQ.options);
-                return newQ;
-            });
-
-            currentPracticeIndex = 0;
-            correctCount = 0;
-            wrongAnswers = [];
-            timerSeconds = 0;
-            
-            document.getElementById('practice-total').textContent = practiceQueue.length;
-            document.getElementById('answered-count').textContent = '0';
-            document.getElementById('timer-display').textContent = '00:00';
-
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timerSeconds++;
-                document.getElementById('timer-display').textContent = formatTime(timerSeconds);
-            }, 1000);
-
-            showView('practice-view');
-            renderPracticeQuestion();
-        }
-
-        function renderPracticeQuestion() {
-            if (currentPracticeIndex >= practiceQueue.length) {
-                endPractice();
-                return;
-            }
-
-            const q = practiceQueue[currentPracticeIndex];
-            document.getElementById('practice-q-text').textContent = `Câu ${currentPracticeIndex + 1}: ${q.text}`;
-            
-            const optionsContainer = document.getElementById('practice-options');
-            optionsContainer.innerHTML = '';
-
-            q.options.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition font-medium text-slate-700 bg-white group';
-                
-                btn.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-xs group-hover:border-blue-500 group-hover:bg-blue-500 group-hover:text-white transition">
-                            ${String.fromCharCode(65 + index)}
-                        </div>
-                        <span>${opt.text}</span>
-                    </div>
-                `;
-                btn.onclick = () => handlePracticeAnswer(opt, index, btn);
-                optionsContainer.appendChild(btn);
-            });
-            
-            document.getElementById('answered-count').textContent = currentPracticeIndex;
-        }
-
-        function handlePracticeAnswer(selectedOption, optIndex, btnElement) {
-            const q = practiceQueue[currentPracticeIndex];
-            const buttons = document.getElementById('practice-options').querySelectorAll('button');
-            buttons.forEach(b => {
-                b.disabled = true;
-                b.classList.remove('hover:border-blue-500', 'hover:bg-blue-50');
-            });
-
-            if (selectedOption.isCorrect) {
-                correctCount++;
-                btnElement.classList.add('border-emerald-500', 'bg-emerald-50');
-                btnElement.querySelector('div').classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
-            } else {
-                btnElement.classList.add('border-rose-500', 'bg-rose-50');
-                btnElement.querySelector('div').classList.add('border-rose-500', 'bg-rose-500', 'text-white');
-                
-                q.options.forEach((opt, idx) => {
-                    if (opt.isCorrect) {
-                        buttons[idx].classList.add('border-emerald-500', 'bg-emerald-50');
-                        buttons[idx].querySelector('div').classList.add('border-emerald-500', 'bg-emerald-500', 'text-white');
-                    }
-                });
-
-                wrongAnswers.push({
-                    question: q,
-                    userSelected: selectedOption
-                });
-            }
-
-            setTimeout(() => {
-                currentPracticeIndex++;
-                renderPracticeQuestion();
-            }, 800);
-        }
-
-        function endPractice() {
-            clearInterval(timerInterval);
-            
-            document.getElementById('res-time').textContent = formatTime(timerSeconds);
-            document.getElementById('res-correct').textContent = correctCount;
-            document.getElementById('res-wrong').textContent = wrongAnswers.length;
-
-            const btnShowWrong = document.getElementById('btn-show-wrong');
-            if (wrongAnswers.length > 0) {
-                btnShowWrong.classList.remove('hidden');
-            } else {
-                btnShowWrong.classList.add('hidden');
-            }
-
-            showView('result-view');
-        }
-
-        function showWrongReview() {
-            const container = document.getElementById('wrong-list-container');
-            container.innerHTML = '';
-
-            wrongAnswers.forEach((item, index) => {
-                const q = item.question;
-                const correctOpt = q.options.find(o => o.isCorrect);
-
-                let expHtml = q.explanation ? `
-                    <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-800">
-                        <span class="font-bold">Giải thích:</span> ${q.explanation}
-                    </div>` : '';
-
-                const qEl = document.createElement('div');
-                qEl.className = 'bg-white p-5 rounded-xl shadow-sm border border-slate-200';
-                qEl.innerHTML = `
-                    <h3 class="font-bold text-slate-800 mb-4 text-lg">Câu ${index + 1}: ${q.text}</h3>
-                    <div class="space-y-2">
-                        <div class="flex items-start gap-2 p-2 rounded bg-rose-50 text-rose-700 border border-rose-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            <span><span class="font-semibold">Bạn chọn:</span> ${item.userSelected.text}</span>
-                        </div>
-                        <div class="flex items-start gap-2 p-2 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span><span class="font-semibold">Đáp án đúng:</span> ${correctOpt.text}</span>
-                        </div>
-                    </div>
-                    ${expHtml}
-                `;
-                container.appendChild(qEl);
-            });
-
-            showView('wrong-review-view');
-        }
-
+        // --- QUẢN LÝ DỮ LIỆU ---
         function exportData() {
-            if (questions.length === 0) {
-                showToast('Không có dữ liệu để xuất!', 'error');
-                return;
-            }
             const dataStr = JSON.stringify(questions, null, 2);
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
-            a.download = `trac_nghiem_${new Date().getTime()}.json`;
-            document.body.appendChild(a);
+            a.download = `ngan_hang_cau_hoi_${new Date().toLocaleDateString()}.json`;
             a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('Xuất dữ liệu thành công!');
         }
 
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        const isValid = importedData.every(q => q.id && q.text && Array.isArray(q.options));
-                        if (isValid) {
-                            const baseTime = Date.now();
-                            const newQuestions = importedData.map((q, i) => {
-                                q.id = baseTime + i;
-                                return q;
-                            });
-                            
-                            questions = questions.concat(newQuestions);
-                            localStorage.setItem('mcq_questions', JSON.stringify(questions));
-                            showToast(`Đã nhập thành công ${newQuestions.length} câu hỏi!`);
-                        } else {
-                            showToast('File JSON không đúng định dạng cấu trúc!', 'error');
-                        }
-                    } else {
-                        showToast('File JSON phải là một mảng dữ liệu!', 'error');
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        questions = imported;
+                        localStorage.setItem('mcq_v2', JSON.stringify(questions));
+                        alert("Đã nhập " + imported.length + " câu hỏi!");
+                        updateStats();
                     }
-                } catch (err) {
-                    showToast('Lỗi đọc file JSON!', 'error');
-                }
-                event.target.value = '';
+                } catch (err) { alert("File không đúng định dạng!"); }
             };
             reader.readAsText(file);
         }
 
+        // --- EDITOR ---
+        function addOptionEditorField(content = '', isCorrect = false) {
+            const container = document.getElementById('options-editor-list');
+            const editorId = 'opt-' + Math.random().toString(36).substr(2, 9);
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-2 bg-slate-50 p-2 rounded-lg group';
+            div.innerHTML = `
+                <input type="radio" name="correct-radio" ${isCorrect ? 'checked' : ''} class="mt-2 h-4 w-4 text-blue-600">
+                <div class="flex-grow bg-white border rounded"><div id="${editorId}"></div></div>
+                <button onclick="this.parentElement.remove()" class="mt-2 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition">✕</button>
+            `;
+            container.appendChild(div);
+            const editor = new Quill('#' + editorId, quillConfig);
+            editor.root.innerHTML = content;
+            div.dataset.editorId = editorId;
+        }
+
+        function showAddForm() {
+            document.getElementById('editor-title').innerText = "Thêm Câu Hỏi Mới";
+            document.getElementById('edit-q-id').value = "";
+            qEditor.root.innerHTML = "";
+            expEditor.root.innerHTML = "";
+            document.getElementById('options-editor-list').innerHTML = "";
+            addOptionEditorField('', true);
+            addOptionEditorField();
+            showView('editor-view');
+        }
+
+        function showEditForm(id) {
+            const q = questions.find(item => item.id === id);
+            if (!q) return;
+            document.getElementById('editor-title').innerText = "Chỉnh Sửa Câu Hỏi";
+            document.getElementById('edit-q-id').value = q.id;
+            qEditor.root.innerHTML = q.text;
+            expEditor.root.innerHTML = q.explanation || "";
+            document.getElementById('options-editor-list').innerHTML = "";
+            q.options.forEach(opt => addOptionEditorField(opt.text, opt.isCorrect));
+            showView('editor-view');
+        }
+
+        function saveQuestion() {
+            const id = document.getElementById('edit-q-id').value;
+            const text = qEditor.root.innerHTML;
+            const explanation = expEditor.root.innerHTML;
+            const optionEls = document.querySelectorAll('#options-editor-list > div');
+            const options = Array.from(optionEls).map(el => ({
+                text: Quill.find(document.getElementById(el.dataset.editorId)).root.innerHTML,
+                isCorrect: el.querySelector('input[type="radio"]').checked
+            }));
+
+            if (qEditor.getText().trim() === "" || options.length < 2) return alert("Vui lòng điền đủ câu hỏi và ít nhất 2 đáp án");
+            
+            const data = { id: id ? parseInt(id) : Date.now(), text, explanation, options };
+            if (id) {
+                const idx = questions.findIndex(q => q.id === parseInt(id));
+                questions[idx] = data;
+            } else {
+                questions.push(data);
+            }
+            localStorage.setItem('mcq_v2', JSON.stringify(questions));
+            showView('review-view');
+            renderQuestionList();
+        }
+
+        function renderQuestionList() {
+            const container = document.getElementById('questions-list');
+            const search = removeAccents(document.getElementById('search-input').value);
+            container.innerHTML = "";
+            
+            questions.filter(q => removeAccents(q.text).includes(search)).forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-4 rounded-xl border shadow-sm relative group";
+                div.innerHTML = `
+                    <div class="pr-12">
+                        <div class="text-[10px] text-slate-400 font-bold mb-1 uppercase">Câu số ${i+1}</div>
+                        <div class="ql-editor !p-0 mb-2">${q.text}</div>
+                        <div class="space-y-1">
+                            ${q.options.map(o => `<div class="text-[12px] ${o.isCorrect ? 'text-emerald-600 font-bold' : 'text-slate-500'} flex gap-2"><span>${o.isCorrect ? '✓' : '○'}</span> <div class="ql-editor !p-0 !min-h-0">${o.text}</div></div>`).join('')}
+                        </div>
+                    </div>
+                    <div class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition">
+                        <button onclick="showEditForm(${q.id})" class="p-1.5 bg-blue-50 text-blue-600 rounded-lg">✎</button>
+                        <button onclick="deleteQuestion(${q.id})" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function deleteQuestion(id) {
+            if (confirm("Xóa câu hỏi này?")) {
+                questions = questions.filter(q => q.id !== id);
+                localStorage.setItem('mcq_v2', JSON.stringify(questions));
+                renderQuestionList();
+            }
+        }
+
+        // --- LUYỆN TẬP ---
+        function openPracticeConfig() {
+            if (questions.length === 0) return alert("Ngân hàng câu hỏi trống!");
+            document.getElementById('range-to').value = questions.length;
+            document.getElementById('config-view').classList.remove('hidden');
+        }
+
+        function toggleRangeInputs() {
+            const isCustom = document.querySelector('input[name="range-type"]:checked').value === 'custom';
+            document.getElementById('range-inputs').classList.toggle('hidden', !isCustom);
+        }
+
+        function startPracticeMode() {
+            const rangeType = document.querySelector('input[name="range-type"]:checked').value;
+            let pool = [...questions];
+            
+            if (rangeType === 'custom') {
+                const from = parseInt(document.getElementById('range-from').value) - 1;
+                const to = parseInt(document.getElementById('range-to').value);
+                pool = questions.slice(Math.max(0, from), Math.min(questions.length, to));
+            }
+
+            if (pool.length === 0) return alert("Phạm vi không hợp lệ!");
+
+            practiceState = {
+                queue: pool.sort(() => Math.random() - 0.5),
+                current: 0,
+                correct: 0,
+                seconds: 0,
+                wrongAnswers: []
+            };
+
+            document.getElementById('config-view').classList.add('hidden');
+            document.getElementById('total-q-num').innerText = practiceState.queue.length;
+            showView('practice-view');
+            
+            clearInterval(practiceState.timer);
+            practiceState.timer = setInterval(() => {
+                practiceState.seconds++;
+                const m = Math.floor(practiceState.seconds/60).toString().padStart(2,'0');
+                const s = (practiceState.seconds%60).toString().padStart(2,'0');
+                document.getElementById('timer-display').innerText = `${m}:${s}`;
+            }, 1000);
+
+            renderStep();
+        }
+
+        function renderStep() {
+            const q = practiceState.queue[practiceState.current];
+            document.getElementById('current-q-num').innerText = practiceState.current + 1;
+            document.getElementById('practice-q-content').innerHTML = q.text;
+            const list = document.getElementById('practice-options-list');
+            list.innerHTML = "";
+            
+            [...q.options].sort(() => Math.random() - 0.5).forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 text-left border-2 border-slate-100 rounded-xl hover:border-blue-200 hover:bg-blue-50 transition-all flex items-start gap-3";
+                btn.innerHTML = `<div class="ql-editor !p-0 !min-h-0 flex-grow">${opt.text}</div>`;
+                btn.onclick = () => handleAnswer(opt, btn, q);
+                list.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(opt, btn, q) {
+            const btns = document.querySelectorAll('#practice-options-list button');
+            btns.forEach(b => b.disabled = true);
+
+            if (opt.isCorrect) {
+                practiceState.correct++;
+                btn.classList.add('!border-emerald-500', '!bg-emerald-50', 'text-emerald-700');
+            } else {
+                practiceState.wrongAnswers.push({ ...q, chosen: opt.text });
+                btn.classList.add('!border-rose-500', '!bg-rose-50', 'text-rose-700');
+                btns.forEach(b => {
+                    const text = b.querySelector('.ql-editor').innerHTML;
+                    if (q.options.find(o => o.text === text && o.isCorrect)) {
+                        b.classList.add('!border-emerald-500', '!bg-emerald-50');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                practiceState.current++;
+                if (practiceState.current < practiceState.queue.length) renderStep();
+                else endPractice();
+            }, 1200);
+        }
+
+        function endPractice() {
+            clearInterval(practiceState.timer);
+            document.getElementById('res-correct').innerText = practiceState.correct;
+            document.getElementById('res-wrong').innerText = practiceState.queue.length - practiceState.correct;
+            document.getElementById('btn-view-wrong').classList.toggle('hidden', practiceState.wrongAnswers.length === 0);
+            showView('result-view');
+        }
+
+        function showWrongAnswers() {
+            const container = document.getElementById('wrong-list');
+            container.innerHTML = "";
+            practiceState.wrongAnswers.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-4 rounded-xl border border-rose-100 shadow-sm";
+                div.innerHTML = `
+                    <div class="text-[10px] font-bold text-rose-400 mb-2 uppercase">Câu sai #${i+1}</div>
+                    <div class="ql-editor !p-0 mb-3">${q.text}</div>
+                    <div class="space-y-2">
+                        <div class="text-xs p-2 bg-rose-50 text-rose-700 rounded-lg border border-rose-100 flex gap-2">
+                            <span class="font-bold">Đã chọn:</span> <div class="ql-editor !p-0 !min-h-0">${q.chosen}</div>
+                        </div>
+                        <div class="text-xs p-2 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 flex gap-2">
+                            <span class="font-bold">Đáp án đúng:</span> <div class="ql-editor !p-0 !min-h-0">${q.options.find(o=>o.isCorrect).text}</div>
+                        </div>
+                    </div>
+                    ${q.explanation && q.explanation !== '<p><br></p>' ? `<div class="mt-3 text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg italic">Giải thích: ${q.explanation}</div>` : ''}
+                `;
+                container.appendChild(div);
+            });
+            showView('wrong-answers-view');
+        }
     </script>
 </body>
 </html>
